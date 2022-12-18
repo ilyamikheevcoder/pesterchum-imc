@@ -200,6 +200,15 @@ class PesterIRC(QtCore.QThread):
                 else:
                     return l
 
+            if h in self.mainwindow.convos and not self.mainwindow.convos[h].started:
+                if not self.mainwindow.convos[h].isBot(h):
+                    helpers.msg(
+                        self.cli, h, "COLOR >%s" % (self.mainwindow.profile().colorcmd())
+                    )
+                    helpers.msg(self.cli, h, "PESTERCHUM:BEGIN")
+                self.mainwindow.convos[h].started = True
+                self.mainwindow.convos[h].convoBeginning()
+
             textl = splittext(textl)
             try:
                 for t in textl:
@@ -225,11 +234,12 @@ class PesterIRC(QtCore.QThread):
         if hasattr(self, "cli"):
             h = str(handle)
             try:
-                helpers.msg(
-                    self.cli, h, "COLOR >%s" % (self.mainwindow.profile().colorcmd())
-                )
-                if initiated:
-                    helpers.msg(self.cli, h, "PESTERCHUM:BEGIN")
+                # helpers.msg(
+                #     self.cli, h, "COLOR >%s" % (self.mainwindow.profile().colorcmd())
+                # )
+                # if initiated:
+                #    helpers.msg(self.cli, h, "PESTERCHUM:BEGIN")
+                pass
             except OSError as e:
                 PchumLog.warning(e)
                 self.setConnectionBroken()
@@ -239,7 +249,8 @@ class PesterIRC(QtCore.QThread):
         if hasattr(self, "cli"):
             h = str(handle)
             try:
-                helpers.msg(self.cli, h, "PESTERCHUM:CEASE")
+                if self.mainwindow.convos[h].started:
+                    helpers.msg(self.cli, h, "PESTERCHUM:CEASE")
             except OSError as e:
                 PchumLog.warning(e)
                 self.setConnectionBroken()
@@ -306,7 +317,8 @@ class PesterIRC(QtCore.QThread):
         if hasattr(self, "cli"):
             h = str(handle)
             try:
-                helpers.msg(self.cli, h, "PESTERCHUM:BLOCK")
+                if h in self.mainwindow.convos and self.mainwindow.convos[h].started:
+                    helpers.msg(self.cli, h, "PESTERCHUM:BLOCK")
             except OSError as e:
                 PchumLog.warning(e)
                 self.setConnectionBroken()
@@ -316,7 +328,8 @@ class PesterIRC(QtCore.QThread):
         if hasattr(self, "cli"):
             h = str(handle)
             try:
-                helpers.msg(self.cli, h, "PESTERCHUM:UNBLOCK")
+                if h in self.mainwindow.convos and self.mainwindow.convos[h].started:
+                    helpers.msg(self.cli, h, "PESTERCHUM:UNBLOCK")
             except OSError as e:
                 PchumLog.warning(e)
                 self.setConnectionBroken()

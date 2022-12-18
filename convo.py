@@ -6,10 +6,10 @@ from datetime import datetime, timedelta
 
 try:
     from PyQt6 import QtCore, QtGui, QtWidgets
-    from PyQt6.QtGui import QShortcut, QAction
+    from PyQt6.QtGui import QShortcut, QAction, QTextCursor
 except ImportError:
     print("PyQt5 fallback (convo.py)")
-    from PyQt5 import QtCore, QtGui, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets, QTextCursor
     from PyQt5.QtWidgets import QAction, QShortcut
 
 import ostools
@@ -826,16 +826,31 @@ class PesterConvo(QtWidgets.QFrame):
         if parent:
             parent.addChat(self)
         if initiated:
-            msg = self.mainwindow.profile().pestermsg(
-                self.chum,
-                QtGui.QColor(self.mainwindow.theme["convo/systemMsgColor"]),
-                self.mainwindow.theme["convo/text/beganpester"],
-            )
+            self.started = False
+            # msg = self.mainwindow.profile().pestermsg(
+            #     self.chum,
+            #     QtGui.QColor(self.mainwindow.theme["convo/systemMsgColor"]),
+            #     self.mainwindow.theme["convo/text/beganpester"],
+            # )
             self.setChumOpen(True)
-            self.textArea.append(convertTags(msg))
-            self.mainwindow.chatlog.log(self.title(), msg)
+            # self.textArea.append(convertTags(msg))
+            # self.mainwindow.chatlog.log(self.title(), msg)
+        else:
+            self.started = True
         self.newmessage = False
         self.history = PesterHistory()
+
+    def convoBeginning(self):
+        msg = self.mainwindow.profile().pestermsg(
+            self.chum,
+            QtGui.QColor(self.mainwindow.theme["convo/systemMsgColor"]),
+            self.mainwindow.theme["convo/text/beganpester"],
+        )
+        cursor = QTextCursor(self.textArea.document())
+        cursor.setPosition(0)
+        self.textArea.setTextCursor(cursor)
+        self.textArea.insertHtml(convertTags(msg) + "<br>")
+        self.mainwindow.chatlog.log(self.title(), msg)
 
     def title(self):
         return self.chum.handle

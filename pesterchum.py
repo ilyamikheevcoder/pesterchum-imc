@@ -2926,7 +2926,7 @@ class PesterWindow(MovingWindow):
                 # Don't send these idle messages.
                 continue
             # karxi: Now we just use 'handle' instead of 'h'.
-            if convo.chumopen:
+            if convo.chumopen and convo.started:
                 msg = self.profile().idlemsg(sysColor, verb)
                 convo.textArea.append(convertTags(msg))
                 self.chatlog.log(handle, msg)
